@@ -35,6 +35,13 @@ async function run() {
     const usersCollection = usersDB2.collection("users");
 
     //add database realted apis here
+    app.get('/users', async (req, res) => {
+      console.log("hitting the get api");
+      const cursor = usersCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
     app.post('/users', async (req, res) => {
       console.log("hitting the post api");
       const newUser = req.body;
