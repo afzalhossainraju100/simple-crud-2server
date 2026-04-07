@@ -35,6 +35,18 @@ async function run() {
     const usersCollection = usersDB2.collection("users");
 
     //add database realted apis here
+    app.get("/users/:id", async (req, res) => {
+      const id = req.params.id;
+
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).send({ error: "Invalid user id" });
+      }
+
+      console.log("need user with id:", id);
+      const query = { _id: new ObjectId(id) };
+      const result = await usersCollection.findOne(query);
+      res.send(result);
+    });
 
     app.get("/users", async (req, res) => {
       console.log("hitting the get api");
@@ -48,6 +60,23 @@ async function run() {
       const newUser = req.body;
       console.log("user info:", newUser);
       const result = await usersCollection.insertOne(newUser);
+      res.send(result);
+    });
+
+    app.patch("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      const updatedUser = req.body;
+
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).send({ error: "Invalid user id" });
+      }
+
+      console.log("need to update user with id:", id);
+      console.log("updated user info:", updatedUser);
+
+      const query = { _id: new ObjectId(id) };
+      const updateDoc = { $set: updatedUser };
+      const result = await usersCollection.updateOne(query, updateDoc);
       res.send(result);
     });
 
