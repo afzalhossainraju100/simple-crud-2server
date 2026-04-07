@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 
 const app = express();
@@ -35,22 +35,33 @@ async function run() {
     const usersCollection = usersDB2.collection("users");
 
     //add database realted apis here
-    app.get('/users', async (req, res) => {
+
+    app.get("/users", async (req, res) => {
       console.log("hitting the get api");
       const cursor = usersCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
 
-    app.post('/users', async (req, res) => {
+    app.post("/users", async (req, res) => {
       console.log("hitting the post api");
       const newUser = req.body;
       console.log("user info:", newUser);
       const result = await usersCollection.insertOne(newUser);
       res.send(result);
-
     });
 
+    app.delete("/users/:id", async (req, res) => {
+      const id = req.params.id;
+
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).send({ error: "Invalid user id" });
+      }
+
+      const query = { _id: new ObjectId(id) };
+      const result = await usersCollection.deleteOne(query);
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
